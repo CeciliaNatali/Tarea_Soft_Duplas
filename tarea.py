@@ -54,17 +54,41 @@ def haversine(coord1, coord2):
 
     return R * c
 
+def par_ciudades_mas_cercanas(ciudad1, ciudad2, ciudad3, obtener_coordenadas): # Nuevo método con 3 ciudades
+    coord1 = obtener_coordenadas.get_coordenada(ciudad1)
+    coord2 = obtener_coordenadas.get_coordenada(ciudad2)
+    coord3 = obtener_coordenadas.get_coordenada(ciudad3)
+
+    if not coord1 or not coord2 or not coord3:
+        return None
+
+    distancia1_2 = haversine(coord1, coord2)
+    distancia1_3 = haversine(coord1, coord3)
+    distancia2_3 = haversine(coord2, coord3)
+
+    distancias = {
+        (ciudad1.ciudad, ciudad2.ciudad): distancia1_2,
+        (ciudad1.ciudad, ciudad3.ciudad): distancia1_3,
+        (ciudad2.ciudad, ciudad3.ciudad): distancia2_3
+    }
+
+    par_mas_cercano = min(distancias, key=distancias.get)
+    return par_mas_cercano
 
 def main():
     ciudad1 = Ciudad("Peru", "Lima")
     ciudad2 = Ciudad("Peru", "Cusco")
+    ciudad3 = Ciudad("Peru", "Arequipa")
 
     obtener_coordenadas = GetCoordenadaCSV()
     # obtener_coordenadas = GetCoordenadaAPI()
     # obtener_coordenadas = GetCoordenadaMOCK()
 
-    coord1 = obtener_coordenadas.get_coordenada(ciudad1)
-    coord2 = obtener_coordenadas.get_coordenada(ciudad2)
+    par_cercano = par_ciudades_mas_cercanas(ciudad1, ciudad2, ciudad3, obtener_coordenadas)
+    if par_cercano:
+        print(f"El par de ciudades más cercano es: {par_cercano[0]} y {par_cercano[1]}.")
+    else:
+        print("No se pudieron obtener las coordenadas de alguna de las ciudades.")
 
-    distancia = haversine(coord1, coord2)
-    print(f"La distancia entre {ciudad1.nombreCiudad} y {ciudad2.nombreCiudad} es {distancia:.2f} km")
+if __name__ == "__main__":
+    main()
